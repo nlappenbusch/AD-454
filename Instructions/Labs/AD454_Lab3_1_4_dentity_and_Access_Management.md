@@ -1,9 +1,5 @@
 # Lab 3 - Exercise 1 - Prepare Azure AD for Hybrid Synchronization
 
-
-# Module 9 - Lab 9 - Exercise 1 - Prepare Azure AD for Hybrid Synchronization
-
-
 ## Task 1: Überprüfung und Bereinigung On-Premises Active Directory
 
 
