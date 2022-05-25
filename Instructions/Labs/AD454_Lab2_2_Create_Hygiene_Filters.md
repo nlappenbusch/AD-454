@@ -1,4 +1,4 @@
-# Module 3 – Lab 3 - Exercise 1 - Create Hygiene Filters
+# Lab 2 - Exercise 2 - Create Hygiene Filters
 
 In this lab, you will continue in your role as Holly Dickson, Adatum’s Messaging
 Administrator. Adatum has experienced a recent rash of malware infections. The
