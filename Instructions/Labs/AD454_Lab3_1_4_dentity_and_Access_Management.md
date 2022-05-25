@@ -194,22 +194,21 @@ The troubleshooting task performs the following checks:
 
 ## Task 7: Seamless Sign-In
 - Was ist Seamless Sign-In? (+VIDEO) - https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sso
+
 - Seamless Sign-In einrichten - https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sso-quick-start
 - Seamless Sign in gleichzeit zu Password Hash Sync aktivieren
-- GPO setzen
-        - User > Admin Templ > Win Comp > IE > Control Panel > Sec > Site to Zone Map https://autologon.microsoftazuread-sso.com – Zone 1 (= Intranet)
-        - User > Admin Templ > Win Comp > IE > Control Panel > Sec > Intranet
-        - Allow updates to status bar via script
-- Testen im IE (Die beiden letzten Varianten sollen ohne Eingabe von Username oder PW den Lo-gin durchführen. Dies funktionierte im Test jedoch so nicht):
-        - https://myapps.microsoft.com -> Username eintippe, kein PW nötig
-        - https://myapps.microsoft.com/addondemo301.onmicrosoft.com
-        - https://myapps.microsoft.com/addon5.de
-        - Login in OneDrive -> nur die Eingabe des Usernamens nötig
+- GPO setzen  <br>
+        - User > Admin Templ > Win Comp > IE > Control Panel > Sec > Site to Zone Map https://autologon.microsoftazuread-sso.com – Zone 1 (= Intranet) <br>
+        - User > Admin Templ > Win Comp > IE > Control Panel > Sec > Intranet <br>
+        - Allow updates to status bar via script <br>
+- Testen im IE (Die beiden letzten Varianten sollen ohne Eingabe von Username oder PW den Lo-gin durchführen. Dies funktionierte im Test jedoch so nicht): <br>
+        - https://myapps.microsoft.com -> Username eintippe, kein PW nötig <br>
+        - https://myapps.microsoft.com/addondemo301.onmicrosoft.com <br>
+        - https://myapps.microsoft.com/addon5.de <br>
+        - Login in OneDrive -> nur die Eingabe des Usernamens nöti g<br> 
 
 
-
-
-
+> HINWEIS: MS empfiehlt einen Key Rollover alle 30 Tage – wie das geht, steht hier: https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sso-faq#how-can-i-roll-over-the-kerberos-decryption-key-of-the-azureadssoacc-computer-account
 
 
 
