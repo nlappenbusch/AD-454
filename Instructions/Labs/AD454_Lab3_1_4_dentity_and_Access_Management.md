@@ -38,7 +38,8 @@ Set-ADUser -identity $user.identity -UserPrincipalName $upn }
         - Addon.local/AddOn/Boeblingen/Users <br>
 
 
-### Deaktivieren von geplanten Aufgaben
+
+## Task 3: Deaktivieren von geplanten Aufgaben
 
 Führen Sie die folgenden Schritte aus, um den integrierten Scheduler zu deaktivieren, der jeweils im Abstand von 30 Minuten einen Synchronisierungszyklus auslöst:
 
@@ -48,11 +49,11 @@ Führen Sie die folgenden Schritte aus, um den integrierten Scheduler zu deaktiv
 4.  Führen Sie  `Set-ADSyncScheduler -SyncCycleEnabled $True`  aus, um den Scheduler wieder zu aktivieren.
 
 
-### Anpassen der Syncronisisationsregeln
+## Task 4:  Anpassen der Syncronisisationsregeln
 > https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering
 
 
-#### Filterung basierend auf Organisationseinheiten
+### Filterung basierend auf Organisationseinheiten
 Die bevorzugte Methode zum Ändern der organisationseinheitenbasierten Filterung besteht darin, den Installations-Assistenten auszuführen und die  [Filterung von Domänen und Organisationseinheiten](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-install-custom#domain-and-ou-filtering)  zu ändern. Der Installations-Assistent automatisiert alle Aufgaben, die in diesem Thema dokumentiert sind.
 
 Sie sollten die folgenden Schritte nur ausführen, wenn Sie den Installations-Assistenten aus irgendeinem Grund nicht ausführen können.
@@ -77,7 +78,7 @@ Führen Sie zum Konfigurieren der auf Organisationseinheiten basierenden Filteru
 8.  Um die Konfiguration abzuschließen, müssen Sie einen  **vollständigen Import**  und eine  **Deltasynchronisierung**  durchführen. Fahren Sie mit dem Abschnitt  [Anwenden und Überprüfen von Änderungen](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering#apply-and-verify-changes)  fort.
 
 
-##### Negative Filterung („keine Synchronisierung“)
+### Negative Filterung („keine Synchronisierung“)
 
 Im folgenden Beispiel werden alle Benutzer herausgefiltert (nicht synchronisiert), bei denen  **extensionAttribute15**  den Wert  **NoSync**  hat.
 
@@ -93,7 +94,7 @@ Im folgenden Beispiel werden alle Benutzer herausgefiltert (nicht synchronisiert
     ![Inbound 3 transformation](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound3.png)
 8.  Um die Konfiguration abzuschließen, müssen Sie eine  **vollständige Synchronisierung**  durchführen. Fahren Sie mit dem Abschnitt  [Anwenden und Überprüfen von Änderungen](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering#apply-and-verify-changes)  fort.
 
-##### Positive Filterung („ausschließliche Synchronisierung“)
+### Positive Filterung („ausschließliche Synchronisierung“)
 
 Das Ausdrücken der positiven Filterung kann mit mehr Aufwand verbunden sein. Sie müssen hierbei nämlich auch Objekte berücksichtigen, bei denen die Synchronisierung nicht offensichtlich ist, z.B. Konferenzräume. Sie überschreiben auch den Standardfilter in der vordefinierten Regel  **Ein von AD – Benutzerverknüpfung**. Achten Sie beim Erstellen eines benutzerdefinierten Filters darauf, keine wichtigen Systemobjekte, Replikationskonfliktobjekte, speziellen Postfächer und Dienstkonten für Azure AD Connect einzuschließen.
 
@@ -122,7 +123,7 @@ Im folgenden Beispiel werden nur Benutzerobjekte synchronisiert, bei denen das d
 
 Bei Bedarf können Sie weitere Regeln des ersten Typs erstellen, bei denen Sie mehr Objekte in die Synchronisierung einbeziehen.
 
-####  Ausgehende Filterung
+###  Ausgehende Filterung
 In einigen Fällen ist es erforderlich, die Filterung erst auszuführen, nachdem die Objekte der Metaverse hinzugefügt wurden. Es kann beispielsweise erforderlich sein, das E-Mail-Attribut aus der Ressourcengesamtstruktur und das Attribut „userPrincipalName“ aus der Kontogesamtstruktur zu untersuchen, um zu ermitteln, ob ein Objekt synchronisiert werden soll. In diesen Fällen wird die Filterung für die ausgehende Regel erstellt.
 
 In diesem Beispiel wird die Filterung so geändert, dass nur Benutzer synchronisiert werden, deren Attribute „mail“ und „userPrincipalName“ auf @contoso.com enden:
@@ -138,12 +139,79 @@ In diesem Beispiel wird die Filterung so geändert, dass nur Benutzer synchronis
 9.  Um die Konfiguration abzuschließen, müssen Sie eine  **vollständige Synchronisierung**  durchführen. Fahren Sie mit dem Abschnitt  [Anwenden und Überprüfen von Änderungen](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering#apply-and-verify-changes)  fort.
 
 
-### Testen der Syncronisisationsregeln
+## Task 5: Testen der Syncronisisationsregeln
 > WICHTIG: Ein bereits synchronisierte Identität wird durch Ausschluss durch eine Sync-Rule nicht nachträglich aus dem jeweiligen AD/AAD entfernt.  
 
 Zum Testen den Sync-Scheduler Task wieder aktivieren und das Cmdlet <code>Start-ADSyncSyncCycle</code> ausführe. 
 
 > Mehr dazu: https://dirteam.com/dave/2015/04/06/azure-active-directory-synchronization-filtering-part-1/
+
+
+
+## Task 6: Troubleshooting AADConnect 
+
+[![ AADConnect troubleshooting ](https://res.cloudinary.com/marcomontalbano/image/upload/v1653498087/video_to_markdown/images/youtube--i8lo0xsg6yA-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=i8lo0xsg6yA " AADConnect troubleshooting ")
+
+Metaverse Search -> Attribute prüfen <br>
+Troubelshooting in AAD Connect: https://docs.microsoft.com/en-us/azure/active-directory/hybrid/tshoot-connect-objectsync
+
+
+### Run the troubleshooting task in the wizard
+
+To run the troubleshooting task in the wizard, perform the following steps:
+
+1.  Open a new Windows PowerShell session on your Azure AD Connect server with the Run as Administrator option.
+2.  Run `Set-ExecutionPolicy RemoteSigned` or `Set-ExecutionPolicy Unrestricted`.
+3.  Start the Azure AD Connect wizard.
+4.  Navigate to the Additional Tasks page, select Troubleshoot, and click Next.
+5.  On the Troubleshooting page, click Launch to start the troubleshooting menu in PowerShell.
+6.  In the main menu, select Troubleshoot Object Synchronization. ![Troubleshoot object synchronization](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/media/tshoot-connect-objectsync/objsynch11.png)
+
+### [](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/tshoot-connect-objectsync#troubleshooting-input-parameters)Troubleshooting Input Parameters
+
+The following input parameters are needed by the troubleshooting task:
+
+1.  **Object Distinguished Name** – This is the distinguished name of the object that needs troubleshooting
+2.  **AD Connector Name** – This is the name of the AD forest where the above object resides.
+3.  Azure AD tenant global administrator credentials ![global administrator credentials](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/media/tshoot-connect-objectsync/objsynch1.png)
+
+### [](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/tshoot-connect-objectsync#understand-the-results-of-the-troubleshooting-task)Understand the results of the troubleshooting task
+
+The troubleshooting task performs the following checks:
+
+1.  Detect UPN mismatch if the object is synced to Azure Active Directory
+2.  Check if object is filtered due to domain filtering
+3.  Check if object is filtered due to OU filtering
+4.  Check if object synchronization is blocked due to a linked mailbox
+5.  Check if object is dynamic distribution group which is not supposed to be synchronized
+
+
+## Task 6: Same Sign-On User Experience 
+ - [] Login in office.com vorführen
+ - [] Login für OneDrive for Business zeigen
+
+
+
+## Task 7: Seamless Sign-In
+- Was ist Seamless Sign-In? (+VIDEO) - https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sso
+- Seamless Sign-In einrichten - https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sso-quick-start
+- Seamless Sign in gleichzeit zu Password Hash Sync aktivieren
+- GPO setzen
+        - User > Admin Templ > Win Comp > IE > Control Panel > Sec > Site to Zone Map https://autologon.microsoftazuread-sso.com – Zone 1 (= Intranet)
+        - User > Admin Templ > Win Comp > IE > Control Panel > Sec > Intranet
+        - Allow updates to status bar via script
+- Testen im IE (Die beiden letzten Varianten sollen ohne Eingabe von Username oder PW den Lo-gin durchführen. Dies funktionierte im Test jedoch so nicht):
+        - https://myapps.microsoft.com -> Username eintippe, kein PW nötig
+        - https://myapps.microsoft.com/addondemo301.onmicrosoft.com
+        - https://myapps.microsoft.com/addon5.de
+        - Login in OneDrive -> nur die Eingabe des Usernamens nötig
+
+
+
+
+
+
+
 
 
 Before you begin setting up Adatum’s hybrid deployment, you must first configure
