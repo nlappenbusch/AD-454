@@ -6,8 +6,9 @@
 1. Ausführung des Tools „IdFix“, zur Überprüfung, ob es Probleme gibt
 2. Domäne – Problematik der „.local“ Domäne erklären (https://docs.microsoft.com/de-de/office365/enterprise/prepare-a-non-routable-domain-for-directory-synchronization)
 3.	Alternativer UPN Suffix einführen	
+<br>
 > EMPFEHLUNG! -> Kunden sollten den UPN immer auf die E-Mail anpassen
-
+<br>
 5. Anpassung des UPN Suffix per AD Users & Computers
 6. Massenänderung des UPN Suffix per AD Users & Computers
 7. Änderung des UPN der User per PowerShell
@@ -18,6 +19,24 @@ $upn = “$($user.givenname).$($user.surname)@addon.de”
 Set-ADUser -identity $user.identity -UserPrincipalName $upn }
 </code>
         
+
+
+## Task 2: Installation und Grundeinrichtung von AAD Connect
+
+- Custom Options: https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-install-custom
+- Ms-ds-consistencyGUID: https://docs.microsoft.com/de-de/azure/active-directory/hybrid/plan-connect-design-concepts#using-ms-ds-consistencyguid-as-sourceanchor
+- Synchronisierte Attribute: https://docs.microsoft.com/en-us/azure/active-directory/hybrid/reference-connect-sync-attributes-synchronized
+
+
+### Task 2: Installation und Grundeinrichtung von AAD Connect
+
+AAD Connect einrichten
+- AAD Connect herunterladen
+- Filtern:
+        - Forest “addon.local”
+        - Addon.local/AddOn/Boeblingen/Users
+
+
 
 
 
