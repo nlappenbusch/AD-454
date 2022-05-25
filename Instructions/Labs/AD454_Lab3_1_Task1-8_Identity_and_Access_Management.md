@@ -211,6 +211,22 @@ The troubleshooting task performs the following checks:
 > HINWEIS: MS empfiehlt einen Key Rollover alle 30 Tage – wie das geht, steht hier: https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sso-faq#how-can-i-roll-over-the-kerberos-decryption-key-of-the-azureadssoacc-computer-account
 
 
+## Task 8: Pass-through Authentication
+- Video inkl. Anleitung unter folgenden Artikel: https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-pta
+- Quick-Start: https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-pta-quick-start
+
+
+
+<br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br>
+
+
+
+
+-------- END / IGNORE FOLLOWING CONTEN --------
+
+
+<br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br>
+
 
 
 Before you begin setting up Adatum’s hybrid deployment, you must first configure
