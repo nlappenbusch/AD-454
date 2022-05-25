@@ -11,7 +11,7 @@
 5. Anpassung des UPN Suffix per AD Users & Computers
 6. Massenänderung des UPN Suffix per AD Users & Computers
 7. Änderung des UPN der User per PowerShell
-8. <code>
+<code>
 $users = Get-ADUser -Filer * -Properties surname,givenname,mail
 Foreach($user in $users){
 $upn = “$($user.givenname).$($user.surname)@addon.de”
