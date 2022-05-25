@@ -7,14 +7,17 @@
 2. Domäne – Problematik der „.local“ Domäne erklären (https://docs.microsoft.com/de-de/office365/enterprise/prepare-a-non-routable-domain-for-directory-synchronization)
 3.	Alternativer UPN Suffix einführen	
 > EMPFEHLUNG! -> Kunden sollten den UPN immer auf die E-Mail anpassen
-	Anpassung des UPN Suffix per AD Users & Computers
-	Massenänderung des UPN Suffix per AD Users & Computers
-	Änderung des UPN der User per PowerShell
+
+5. Anpassung des UPN Suffix per AD Users & Computers
+6. Massenänderung des UPN Suffix per AD Users & Computers
+7. Änderung des UPN der User per PowerShell
+8. <code>
 $users = Get-ADUser -Filer * -Properties surname,givenname,mail
 Foreach($user in $users){
 $upn = “$($user.givenname).$($user.surname)@addon.de”
-Set-ADUser -identity $user.identity -UserPrincipalName $upn
-o	}
+Set-ADUser -identity $user.identity -UserPrincipalName $upn }
+</code>
+        
 
 
 
