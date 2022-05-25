@@ -7,17 +7,19 @@
 2. Domäne – Problematik der „.local“ Domäne erklären (https://docs.microsoft.com/de-de/office365/enterprise/prepare-a-non-routable-domain-for-directory-synchronization)
 3.	Alternativer UPN Suffix einführen	
 <br>
+
 > EMPFEHLUNG! -> Kunden sollten den UPN immer auf die E-Mail anpassen
+
 <br>
-5. Anpassung des UPN Suffix per AD Users & Computers
-6. Massenänderung des UPN Suffix per AD Users & Computers
-7. Änderung des UPN der User per PowerShell
+4. Anpassung des UPN Suffix per AD Users & Computers <br>
+5. Massenänderung des UPN Suffix per AD Users & Computers <br>
+6. Änderung des UPN der User per PowerShell <br> 
 <code>
 $users = Get-ADUser -Filer * -Properties surname,givenname,mail
 Foreach($user in $users){
 $upn = “$($user.givenname).$($user.surname)@addon.de”
 Set-ADUser -identity $user.identity -UserPrincipalName $upn }
-</code>
+</code> <br> <br>
         
 
 
@@ -28,18 +30,118 @@ Set-ADUser -identity $user.identity -UserPrincipalName $upn }
 - Synchronisierte Attribute: https://docs.microsoft.com/en-us/azure/active-directory/hybrid/reference-connect-sync-attributes-synchronized
 
 
-### Task 2: Installation und Grundeinrichtung von AAD Connect
+### AAD Connect einrichten
 
-AAD Connect einrichten
 - AAD Connect herunterladen
-- Filtern:
-        - Forest “addon.local”
-        - Addon.local/AddOn/Boeblingen/Users
+- Filtern: <br>
+        - Forest “addon.local” <br>
+        - Addon.local/AddOn/Boeblingen/Users <br>
 
 
+### Deaktivieren von geplanten Aufgaben
+
+Führen Sie die folgenden Schritte aus, um den integrierten Scheduler zu deaktivieren, der jeweils im Abstand von 30 Minuten einen Synchronisierungszyklus auslöst:
+
+1.  Wechseln Sie zu einer PowerShell-Eingabeaufforderung.
+2.  Führen Sie  `Set-ADSyncScheduler -SyncCycleEnabled $False`  aus, um den Scheduler zu deaktivieren.
+3.  Nehmen Sie die in diesem Thema beschriebenen Änderungen vor.
+4.  Führen Sie  `Set-ADSyncScheduler -SyncCycleEnabled $True`  aus, um den Scheduler wieder zu aktivieren.
 
 
+### Anpassen der Syncronisisationsregeln
+> https://docs.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering
 
+
+#### Filterung basierend auf Organisationseinheiten
+Die bevorzugte Methode zum Ändern der organisationseinheitenbasierten Filterung besteht darin, den Installations-Assistenten auszuführen und die  [Filterung von Domänen und Organisationseinheiten](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-install-custom#domain-and-ou-filtering)  zu ändern. Der Installations-Assistent automatisiert alle Aufgaben, die in diesem Thema dokumentiert sind.
+
+Sie sollten die folgenden Schritte nur ausführen, wenn Sie den Installations-Assistenten aus irgendeinem Grund nicht ausführen können.
+
+Führen Sie zum Konfigurieren der auf Organisationseinheiten basierenden Filterung die folgenden Schritte aus:
+
+1.  Melden Sie sich bei dem Server, auf dem die Azure AD Connect-Synchronisierung ausgeführt wird, mit einem Konto an, das Mitglied der Sicherheitsgruppe  **ADSyncAdmins**  ist.
+2.  Starten Sie den  **Synchronisierungsdienst**  über das  **Startmenü**.
+3.  Wählen Sie  **Connectors**  aus, und wählen Sie in der Liste  **Connectors**  den Connector mit dem Typ  **Active Directory Domain Services**  aus. Wählen Sie unter  **Aktionen**  die Option  **Eigenschaften**  aus.  
+    ![Connector properties](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/connectorproperties.png)
+4.  Klicken Sie auf  **Configure Directory Partitions**  (Verzeichnispartitionen konfigurieren), wählen Sie die Domäne aus, die Sie konfigurieren möchten, und klicken Sie dann auf  **Containers**  (Container).
+5.  Geben Sie bei Aufforderung Anmeldeinformationen an, die Ihnen den Lesezugriff auf Ihr lokales Active Directory-Verzeichnis ermöglichen. Es muss sich nicht um den Benutzer handeln, der im Dialogfeld bereits angegeben ist.
+6.  Deaktivieren Sie im Dialogfeld  **Select Containers**  (Container auswählen) die Organisationseinheiten, die Sie nicht mit dem Cloudverzeichnis synchronisieren möchten, und klicken Sie auf  **OK**.  
+    ![OUs in the Select Containers dialog box](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/ou.png)
+    -   Der Container  **Computer**  sollte ausgewählt sein, damit die Synchronisierung Ihrer Windows 10-Computer mit Azure AD erfolgreich ist. Falls sich die einer Domäne angehörenden Computer in anderen Organisationseinheiten befinden, sollten Sie sicherstellen, dass sie ausgewählt sind.
+    -   Der Container  **ForeignSecurityPrincipals**  sollte ausgewählt sein, wenn Sie über mehrere Gesamtstrukturen mit Vertrauensstellungen verfügen. Dieser Container ermöglicht die Auflösung der gesamtstrukturübergreifenden Sicherheitsgruppenmitgliedschaft.
+    -   Die Organisationseinheit  **RegisteredDevices**  sollte ausgewählt sein, wenn Sie das Feature für das Geräterückschreiben aktiviert haben. Falls Sie ein anderes Feature für das Geräterückschreiben verwenden, z. B. das Gruppenrückschreiben, sollten Sie sicherstellen, dass diese Speicherorte ausgewählt sind.
+    -   Wählen Sie eine beliebige andere Organisationseinheit aus, in der Benutzer, iNetOrgPersons, Gruppen, Kontakte und Computer enthalten sind. In der Abbildung befinden sich all diese Organisationseinheiten in der Organisationseinheit „ManagedObjects“.
+    -   Wenn Sie die gruppenbasierte Filterung verwenden, muss die Organisationseinheit, zu der die Gruppe gehört, enthalten sein.
+    -   Hinweis: Sie können konfigurieren, ob neue Organisationseinheiten, die nach Abschluss der Filterkonfiguration hinzugefügt wurden, synchronisiert werden sollen. Weitere Details finden Sie im nächsten Abschnitt.
+7.  Schließen Sie nach Abschluss des Vorgangs das Dialogfeld  **Eigenschaften**, indem Sie auf  **OK**  klicken.
+8.  Um die Konfiguration abzuschließen, müssen Sie einen  **vollständigen Import**  und eine  **Deltasynchronisierung**  durchführen. Fahren Sie mit dem Abschnitt  [Anwenden und Überprüfen von Änderungen](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering#apply-and-verify-changes)  fort.
+
+
+##### Negative Filterung („keine Synchronisierung“)
+
+Im folgenden Beispiel werden alle Benutzer herausgefiltert (nicht synchronisiert), bei denen  **extensionAttribute15**  den Wert  **NoSync**  hat.
+
+1.  Melden Sie sich bei dem Server, auf dem die Azure AD Connect-Synchronisierung ausgeführt wird, mit einem Konto an, das Mitglied der Sicherheitsgruppe  **ADSyncAdmins**  ist.
+2.  Starten Sie den  **Synchronisierungsregel-Editor**  über das  **Startmenü**.
+3.  Stellen Sie sicher, dass  **Eingehend**  ausgewählt ist, und klicken Sie auf  **Neue Regel hinzufügen**.
+4.  Geben Sie der Regel einen aussagekräftigen Namen, z.B.  _In from AD – User DoNotSyncFilter_. Wählen Sie die richtige Gesamtstruktur und anschließend  **Benutzer**  für  **CS object type**  (CS-Objekttyp) und  **Person**  für  **MV object type**  (MV-Objekttyp) aus. Wählen Sie als  **Verknüpfungstyp**  die Option  **Join**  aus. Geben Sie unter  **Rangfolge**  einen Wert ein, der zurzeit noch von keiner anderen Synchronisierungsregel verwendet wird (z.B. 50), und klicken Sie auf  **Weiter**.  
+    ![Inbound 1 description](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound1.png)
+5.  Klicken Sie in  **Scoping filter**  (Bereichsfilter) auf  **Gruppe hinzufügen**  und dann auf  **Klausel hinzufügen**. Wählen Sie in  **Attribut**  die Option  **ExtensionAttribute15**  aus. Stellen Sie sicher, dass der  **Operator**  auf  **EQUAL**  festgelegt ist, und geben Sie dann den Wert  **NoSync**  in das Feld  **Wert**  ein. Klicken Sie auf  **Weiter**.  
+    ![Inbound 2 scope](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound2.png)
+6.  Lassen Sie  **Join rules**  (Joinregeln) leer, und klicken Sie dann auf  **Next**.
+7.  Klicken Sie auf  **Transformation hinzufügen**, und wählen Sie  **Konstante**  als  **FlowType**  und  **cloudFiltered**  als  **Zielattribut**  aus. Geben Sie  **True**  im Textfeld  **Quelle**  ein. Klicken Sie auf  **Hinzufügen**  , um die Regel zu speichern.  
+    ![Inbound 3 transformation](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound3.png)
+8.  Um die Konfiguration abzuschließen, müssen Sie eine  **vollständige Synchronisierung**  durchführen. Fahren Sie mit dem Abschnitt  [Anwenden und Überprüfen von Änderungen](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering#apply-and-verify-changes)  fort.
+
+##### Positive Filterung („ausschließliche Synchronisierung“)
+
+Das Ausdrücken der positiven Filterung kann mit mehr Aufwand verbunden sein. Sie müssen hierbei nämlich auch Objekte berücksichtigen, bei denen die Synchronisierung nicht offensichtlich ist, z.B. Konferenzräume. Sie überschreiben auch den Standardfilter in der vordefinierten Regel  **Ein von AD – Benutzerverknüpfung**. Achten Sie beim Erstellen eines benutzerdefinierten Filters darauf, keine wichtigen Systemobjekte, Replikationskonfliktobjekte, speziellen Postfächer und Dienstkonten für Azure AD Connect einzuschließen.
+
+Die positive Filterung erfordert zwei Synchronisierungsregeln. Sie benötigen eine Regel (oder mehrere) mit dem richtigen Bereich der zu synchronisierenden Objekte. Darüber hinaus benötigen Sie eine zweite Catchall-Synchronisierungsregel, die alle Objekte herausfiltert, die noch nicht als ein zu synchronisierendes Objekt identifiziert wurden.
+
+Im folgenden Beispiel werden nur Benutzerobjekte synchronisiert, bei denen das department-Attribut den Wert  **Sales**hat.
+
+1.  Melden Sie sich bei dem Server, auf dem die Azure AD Connect-Synchronisierung ausgeführt wird, mit einem Konto an, das Mitglied der Sicherheitsgruppe  **ADSyncAdmins**  ist.
+2.  Starten Sie den  **Synchronisierungsregel-Editor**  über das  **Startmenü**.
+3.  Stellen Sie sicher, dass  **Eingehend**  ausgewählt ist, und klicken Sie auf  **Neue Regel hinzufügen**.
+4.  Geben Sie der Regel einen aussagekräftigen Namen, z.B.  _In from AD – User Sales sync_. Wählen Sie die richtige Gesamtstruktur und anschließend  **Benutzer**  für  **CS object type**  (CS-Objekttyp) und  **Person**  für  **MV object type**  (MV-Objekttyp) aus. Wählen Sie als  **Verknüpfungstyp**  die Option  **Join**  aus. Geben Sie unter  **Rangfolge**  einen Wert ein, der zurzeit noch von keiner anderen Synchronisierungsregel verwendet wird (z.B. 51), und klicken Sie auf  **Weiter**.  
+    ![Inbound 4 description](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound4.png)
+5.  Klicken Sie in  **Scoping filter**  (Bereichsfilter) auf  **Gruppe hinzufügen**  und dann auf  **Klausel hinzufügen**. Wählen Sie in  **Attribut**  den Wert  **department**  aus. Stellen Sie sicher, dass der Operator auf  **EQUAL**  festgelegt ist, und geben Sie dann den Wert  **Sales**  in das Feld  **Wert**  ein. Klicken Sie auf  **Weiter**.  
+    ![Inbound 5 scope](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound5.png)
+6.  Lassen Sie  **Join rules**  (Joinregeln) leer, und klicken Sie dann auf  **Next**.
+7.  Klicken Sie auf  **Transformation hinzufügen**, und wählen Sie  **Konstante**  als  **FlowType**  und  **cloudFiltered**  als  **Zielattribut**  aus. Geben Sie  **False**  im Feld  **Quelle**  ein. Klicken Sie auf  **Hinzufügen**  , um die Regel zu speichern.  
+    ![Inbound 6 transformation](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound6.png)  
+    Dies ist ein Sonderfall, in dem cloudFiltered explizit auf  **FALSE**  festgelegt wird.
+8.  Wir müssen jetzt die Synchronisierungsregel „catch-all“ erstellen, die alles abdeckt. Geben Sie der Regel einen aussagekräftigen Namen, z.B.  _In from AD – User Catch-all filter_. Wählen Sie die richtige Gesamtstruktur und anschließend  **Benutzer**  für  **CS object type**  (CS-Objekttyp) und  **Person**  für  **MV object type**  (MV-Objekttyp) aus. Wählen Sie als  **Verknüpfungstyp**  die Option  **Join**  aus. Geben Sie unter  **Rangfolge**  einen Wert ein, der zurzeit noch von keiner anderen Synchronisierungsregel verwendet wird (z.B. 99). Sie haben einen Rangfolgewert ausgewählt, der höher (niedrigere Rangfolge) als der für die vorherige Synchronisierungsregel ist. Sie haben aber auch Platz gelassen, sodass Sie später noch weitere Filterregeln für die Synchronisierung hinzufügen können, wenn Sie zusätzliche Abteilungen synchronisieren möchten. Klicken Sie auf  **Weiter**.  
+    ![Inbound 7 description](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound7.png)
+9.  Lassen Sie  **Scoping filter**  leer, und klicken Sie auf  **Next**. Ein leerer Filter gibt an, dass die Regel nicht auf alle Objekte angewendet wird.
+10.  Lassen Sie  **Join rules**  (Joinregeln) leer, und klicken Sie dann auf  **Next**.
+11.  Klicken Sie auf  **Transformation hinzufügen**, und wählen Sie  **Konstante**  als  **FlowType**  und  **cloudFiltered**  als  **Zielattribut**  aus. Geben Sie  **True**  im Feld  **Quelle**  ein. Klicken Sie auf  **Hinzufügen**  , um die Regel zu speichern.  
+    ![Inbound 3 transformation](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/media/how-to-connect-sync-configure-filtering/inbound3.png)
+12.  Um die Konfiguration abzuschließen, müssen Sie eine  **vollständige Synchronisierung**  durchführen. Fahren Sie mit dem Abschnitt  [Anwenden und Überprüfen von Änderungen](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering#apply-and-verify-changes)  fort.
+
+Bei Bedarf können Sie weitere Regeln des ersten Typs erstellen, bei denen Sie mehr Objekte in die Synchronisierung einbeziehen.
+
+####  Ausgehende Filterung
+In einigen Fällen ist es erforderlich, die Filterung erst auszuführen, nachdem die Objekte der Metaverse hinzugefügt wurden. Es kann beispielsweise erforderlich sein, das E-Mail-Attribut aus der Ressourcengesamtstruktur und das Attribut „userPrincipalName“ aus der Kontogesamtstruktur zu untersuchen, um zu ermitteln, ob ein Objekt synchronisiert werden soll. In diesen Fällen wird die Filterung für die ausgehende Regel erstellt.
+
+In diesem Beispiel wird die Filterung so geändert, dass nur Benutzer synchronisiert werden, deren Attribute „mail“ und „userPrincipalName“ auf @contoso.com enden:
+
+1.  Melden Sie sich bei dem Server, auf dem die Azure AD Connect-Synchronisierung ausgeführt wird, mit einem Konto an, das Mitglied der Sicherheitsgruppe  **ADSyncAdmins**  ist.
+2.  Starten Sie den  **Synchronisierungsregel-Editor**  über das  **Startmenü**.
+3.  Klicken Sie unter  **Rules Type**  (Regeltyp) auf  **Outbound**  (Ausgehend).
+4.  Suchen Sie abhängig von der verwendeten Connect-Version entweder die Regel  **Out to Azure AD – User Join**  (Ausgehend zu Azure AD – Beitritt Benutzer) oder die Regel  **Out to Azure AD – User Join SOAInAD**  (Ausgehend zu Azure AD – Beitritt Benutzer SOAInAD), und klicken Sie auf  **Bearbeiten**.
+5.  Wählen Sie im Popupfenster die Antwort  **Ja**  , um eine Kopie der Regel zu erstellen.
+6.  Ändern Sie auf der Seite  **Beschreibung**  die  **Rangfolge**  in einen nicht verwendeten Wert, z.B. 50.
+7.  Klicken Sie im linken Navigationsbereich auf  **Scoping filter**  (Bereichsfilter) und dann auf  **Klausel hinzufügen**. Wählen Sie in  **Attribut**  den Wert  **mail**  aus. Wählen Sie in  **Operator**  die Option  **ENDSWITH**  aus. Geben Sie in  **Wert****@contoso.com**  ein und klicken Sie dann auf  **Klausel hinzufügen**. Wählen Sie in  **Attribut**  die Option  **userPrincipalName**  aus. Wählen Sie in  **Operator**  die Option  **ENDSWITH**  aus. Geben Sie in  **Wert****contoso.com**  ein.
+8.  Klicken Sie auf  **Speichern**.
+9.  Um die Konfiguration abzuschließen, müssen Sie eine  **vollständige Synchronisierung**  durchführen. Fahren Sie mit dem Abschnitt  [Anwenden und Überprüfen von Änderungen](https://docs.microsoft.com/de-de/azure/active-directory/hybrid/how-to-connect-sync-configure-filtering#apply-and-verify-changes)  fort.
+
+
+### Testen der Syncronisisationsregeln
+> WICHTIG: Ein bereits synchronisierte Identität wird durch Ausschluss durch eine Sync-Rule nicht nachträglich aus dem jeweiligen AD/AAD entfernt.  
+
+Zum Testen den Sync-Scheduler Task wieder aktivieren und das Cmdlet <code>Start-ADSyncSyncCycle</code> ausführe. 
 
 
 
