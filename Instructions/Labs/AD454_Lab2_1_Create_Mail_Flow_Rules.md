@@ -1,4 +1,4 @@
-# Module 2 – Lab 2 - Exercise 1 – Create Mail Flow Rules
+# Lab 2 - Exercise 1 – Create Mail Flow Rules
 
 In this lab, you will continue in your role as Holly Dickson, Adatum’s Messaging
 Administrator. In the prior lab, you created new send and receive connectors for
