@@ -143,8 +143,7 @@ In diesem Beispiel wird die Filterung so geändert, dass nur Benutzer synchronis
 
 Zum Testen den Sync-Scheduler Task wieder aktivieren und das Cmdlet <code>Start-ADSyncSyncCycle</code> ausführe. 
 
-
-
+> Mehr dazu: https://dirteam.com/dave/2015/04/06/azure-active-directory-synchronization-filtering-part-1/
 
 
 Before you begin setting up Adatum’s hybrid deployment, you must first configure
